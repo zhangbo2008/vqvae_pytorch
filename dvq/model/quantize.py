@@ -65,7 +65,7 @@ class VQVAEQuantize(nn.Module):
         commitment_cost = 0.25
         diff = commitment_cost * (z_q.detach() - z_e).pow(2).mean() + (z_q - z_e.detach()).pow(2).mean()
         diff *= self.kld_scale
-
+# 下面是一个恒等变换.这样对于z_q的导数就等价于z_e的导数了.很聪明的技巧.等于直接跳过了中间的vq运算.
         z_q = z_e + (z_q - z_e).detach() # noop in forward pass, straight-through gradient estimator in backward pass
         z_q = z_q.permute(0, 3, 1, 2) # stack encodings into channels again: (B, C, H, W)
         return z_q, diff, ind  #  z_q 是量化之后的图片,  diff是距离, ind是量化的索引.
